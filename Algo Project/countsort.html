@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="project.css" rel="stylesheet">
+    <script src="project.js" defer></script>
+    <title>CountSort</title>
+    <script>
+        let global_arr;
+
+        function fileValidation() {
+            const fileInput = document.getElementById('file');
+            const filePath = fileInput.value;
+            const allowedextensions = /(\.txt)$/i;
+            if (!allowedextensions.exec(filePath)) {
+                //alert("Invalid File type");
+                fileInput.value = '';
+                return false;
+            } else {
+                const input = document.querySelector('input[type="file"]');
+                const reader = new FileReader();
+                reader.onload = function () {
+                    let fileResult = reader.result;
+                    global_arr = fileResult.split(' ').map(function (element) {
+                        return parseFloat(element);
+                    });
+                    displayArray(global_arr);
+                }
+                reader.readAsText(input.files[0]);
+
+            }
+
+        }
+
+        function displayArray(arr) {
+            const arrayContainer = document.getElementsByClassName("radixarraybars")[0];
+            let size = arr.length;
+            arrayContainer.innerHTML = "";
+            let divider = Math.max(...arr);
+            let width = 279.6 / size;
+            for (let i = 0; i < size; i++) {
+                const arrayElement = document.createElement("div");
+                arrayElement.setAttribute('id', `${i}`);
+                arrayElement.classList.add("array_element");
+                arrayElement.style.height = ((arr[i] * 100) / divider) + "%";
+                arrayElement.style.width = width + "px";
+                arrayElement.style.borderLeft = "2px solid #010305";
+                arrayElement.style.borderRight = "2px solid #010305";
+                arrayElement.style.borderTop = "2px solid #010305";
+                arrayElement.textContent = arr[i];
+                //arrayElement.textContent = `${arr[i]}`;
+                arrayContainer.appendChild(arrayElement);
+            }
+        }
+
+
+
+
+        function displaycountArray(arr) {
+            const arrayContainer = document.getElementsByClassName("countarraybars")[0];
+            let size = arr.length;
+            arrayContainer.innerHTML = "";
+            let divider = Math.max(...arr);
+            let width = 279.6 / size;
+            for (let i = 0; i < size; i++) {
+                const arrayElement = document.createElement("div");
+                arrayElement.setAttribute('id', `${i}`);
+                arrayElement.classList.add("array_element");
+                arrayElement.style.height = ((arr[i] * 100) / divider) + "%";
+                arrayElement.style.width = width + "px";
+                arrayElement.style.borderLeft = "2px solid #010305";
+                arrayElement.style.borderRight = "2px solid #010305";
+                arrayElement.style.borderTop = "2px solid #010305";
+                arrayElement.textContent = arr[i];
+                //arrayElement.textContent = `${arr[i]}`;
+                arrayContainer.appendChild(arrayElement);
+            }
+        }
+
+        async function displayoutputArr(arr) {
+            const arrayContainer = document.getElementsByClassName("outputArr")[0];
+            let size = arr.length;
+            arrayContainer.innerHTML = "";
+            let divider = Math.max(...arr);
+            let width = 279.6 / size;
+            for (let i = 0; i < size; i++) {
+                const arrayElement = document.createElement("div");
+                arrayElement.setAttribute('id', `${i}`);
+                arrayElement.classList.add("array_element");
+                arrayElement.style.height = ((arr[i] * 100) / divider) + "%";
+                arrayElement.style.width = width + "px";
+                arrayElement.style.borderLeft = "2px solid #010305";
+                arrayElement.style.borderRight = "2px solid #010305";
+                arrayElement.style.borderTop = "2px solid #010305";
+                arrayElement.style.backgroundColor = "green";
+                arrayElement.textContent = arr[i];
+                //arrayElement.textContent = `${arr[i]}`;
+                arrayContainer.appendChild(arrayElement);
+            }
+        }
+
+        function shuffleArray() {
+            const arrayContainer = document.getElementsByClassName('radixarraybars')[0].children;
+
+
+
+            const indices = Array.from(global_arr.keys());
+            indices.sort(() => .5 - Math.random());
+            let arr = Array.from(arrayContainer);
+            global_arr = indices.map(i => global_arr[i]);
+            arr = indices.map(i => arr[i]);
+
+
+
+            let resultHTML = "";
+            for (let i = 0; i < arr.length; i++) {
+                resultHTML = resultHTML + arr[i].outerHTML;
+            }
+
+            const arraybars = document.getElementsByClassName('radixarraybars')[0];
+            arraybars.innerHTML = `${resultHTML}`
+        }
+
+
+
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+
+        async function displaySortedArray(arr, ele1, ele2) {
+
+            let temp = [...arr];
+            const size = arr.length;
+            let resultHTML = "";
+            for (let i = 0; i < size; i++) {
+                if (temp[i] === ele1) {
+
+                    resultHTML = resultHTML + ele2.outerHTML;
+                } else {
+                    resultHTML = resultHTML + temp[i].outerHTML;
+                }
+
+            }
+            document.getElementsByClassName('arraybars')[0].innerHTML = `${resultHTML}`;
+
+        }
+
+
+        async function countSort() {
+            /*const arrayContainer = document.getElementsByClassName("arraybars")[0];
+            const arraybars = document.getElementsByClassName('arraybars')[0].children;
+            let bar = document.getElementsByClassName('array_element');
+            let countbar = document.getElementsByClassName('countarraybars');*/
+            let sort = document.getElementById('sort');
+            let shuffle = document.getElementById('shuffle');
+            sort.disabled = true;
+            shuffle.disabled = true;
+
+            let k = Math.max(...global_arr);
+            let t;
+            let size = global_arr.length;
+
+            const temp = new Array(k + 1).fill(0);
+
+            for (let i = 0; i < size; i++) {
+                t = global_arr[i];
+                temp[t]++;
+                await displaycountArray(temp);
+                await sleep(200);
+            }
+            await sleep(500);
+
+            for (let i = 1; i <= k; i++) {
+
+                temp[i] = temp[i] + temp[i - 1];
+                let bar = document.getElementsByClassName('array_element');
+                await displaycountArray(temp);
+                await sleep(200);
+            }
+
+
+            const outputArr = new Array(size).fill(0);
+
+            for (let i = size - 1; i >= 0; i--) {
+
+                t = global_arr[i];
+                outputArr[temp[t] - 1] = t;
+                let bar = document.getElementsByClassName('array_element');
+                await displayoutputArr(outputArr);
+                sleep(1000);
+                temp[t] = temp[t] - 1;
+
+
+
+                await displaycountArray(temp);
+                await sleep(200);
+            }
+            for (let i = 0; i < size; i++) {
+                global_arr[i] = outputArr[i];
+            }
+            sort.disabled = false;
+            shuffle.disabled = false;
+        }
+    </script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- <header tabindex="0">Algo Project</header> -->
+        <div id="nav-container">
+            <div class="bg"></div>
+            <div class="button" tabindex="0">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </div>
+            <div id="nav-content" tabindex="0">
+                <ul>
+                    <li id="li-heading"><a href="project.html">Home</a></li>
+                    <hr>
+                    <li id="locked"> Sorting Algos</a></li>
+                    <hr>
+                    <li><a href="insertionsort.html">Insertion Sort</a></li>
+                    <li><a href="bubblesort.html">Bubble Sort</a></li>
+                    <li><a href="mergesort.html">Merge Sort</a></li>
+                    <li><a href="heapsort.html">Heap Sort</a></li>
+                    <li><a href="quicksort.html">Quick Sort</a></li>
+                    <li><a href="radixsort.html">Radix Sort</a></li>
+                    <li><a href="bucketsort.html">Bucket Sort</a></li>
+                    <li><a href="countsort.html">Count Sort</a></li>
+                    <li><a href="modifiedquick.html">Modified Quick Sort</a></li>
+                    <li><a href="rangealgo.html">Range Algo</a></li>
+                </ul>
+            </div>
+        </div>
+
+
+
+
+
+
+        <main class="count-main">
+            <div class="content">
+                <h1>Count Sort</h1>
+                <div class="box">
+                    <button class="btn" id="shuffle" width="20" height="17" onclick="shuffleArray()">Shuffle</button>
+                    <button class="btn" id="sort" width="20" height="17" onclick="countSort()">Sort</button>
+                    <input type="file" name="file-2[]" id="file" accept=".txt" class="inputfile inputfile-2"
+                        data-multiple-caption="{count} files selected" multiple onchange="return fileValidation()" />
+                    <label for="file"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="17"
+                            viewBox="0 0 20 17">
+                            <path
+                                d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z" />
+                        </svg> <span>Choose a file&hellip;</span></label>
+                </div>
+            </div>
+
+            <div class="countsortdisplay">
+                <div class="radixarraybars"></div>
+                <div class="countarraybars"></div>
+                <div class="outputArr"></div>
+            </div>
+
+            <div id="sort-cover">
+                <div class="info-parent">
+                    <div class="sort-description">
+                        <div style="font-family: 'Jura', Courier, monospace; font-size: 35px;">DESCRIPTION</div>
+                        <p>
+                            Counting sort is a sorting algorithm that sorts the elements of an array by counting the
+                            number of occurrences of each unique element in the array. The count is stored in an
+                            auxiliary array and the sorting is done by mapping the count as an index of the auxiliary
+                            array.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="table-box">
+                <div style="font-family: 'Jura', Courier, monospace; font-size: 35px;">COMPLEXITY</div>
+                <table class="sort-table aos-init aos-animate" data-aos="flip-left">
+                    <tbody>
+                        <tr>
+                            <th>
+                                Average Complexity
+                            </th>
+                            <td>
+
+                                O(n+k)
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Best Case
+                            </th>
+                            <td>
+
+                                O(n+k)
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Worst Case
+                            </th>
+                            <td>
+                                O(n+k)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Space Complexity
+                            </th>
+                            <td>
+
+                                O(n)
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+</body>
+
+</html>
